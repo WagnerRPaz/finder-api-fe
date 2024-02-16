@@ -1,8 +1,8 @@
-import { Fragment, useContext } from "react";
+import { Fragment, useEffect } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import Logo from "./assets/Logo.png";
-import { AuthContext } from "./AuthContext";
+import instance from "./axiosConfig";
 
 const user = {
   name: "Tom Cook",
@@ -27,7 +27,9 @@ function classNames(...classes) {
 }
 
 export default function Home() {
-  const { user } = useContext(AuthContext);
+  useEffect(() => {
+    //instance.get("/users");
+  }, []);
   return (
     <>
       <div className="min-h-full">
