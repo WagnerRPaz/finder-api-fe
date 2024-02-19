@@ -5,7 +5,7 @@ import { AuthContext } from "./AuthContext";
 import "./index.css";
 import React, { useContext } from "react";
 
-function Login({ onSignIn }) {
+function Login() {
   const { register, handleSubmit } = useForm();
   const { signIn } = useContext(AuthContext);
   const [error, setError] = React.useState(null);
@@ -92,7 +92,7 @@ function Login({ onSignIn }) {
               to="/register"
               className="font-semibold leading-6 text-green-600 hover:text-green-500"
             >
-              Login
+              Cadastrar
             </Link>
           </p>
         </div>

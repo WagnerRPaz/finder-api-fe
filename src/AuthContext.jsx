@@ -1,32 +1,33 @@
+// AuthContext.jsx
 import React, { createContext, useEffect, useState, useContext } from "react";
 import axiosInstance from "./axiosConfig";
-import { setCookie, parseCookies } from "nookies";
+import { setCookie, parseCookies, destroyCookie } from "nookies";
 import { useHistory } from "react-router-dom";
-import instance from "./axiosConfig";
 
 export const AuthContext = createContext({});
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const history = useHistory();
-
   const isAuthenticated = !!user;
 
-  useEffect(() => {
-    async function fetchData() {
-      const { "finder-token": token } = parseCookies();
-      if (token) {
-        try {
-          const response = await axiosInstance.get("/auth/userInfo");
-          setUser(response.data);
-        } catch (error) {
-          console.error("Erro ao buscar informações do usuário:", error);
-        }
+  const fetchData = async () => {
+    const { "finder-token": token } = parseCookies();
+    if (token) {
+      try {
+        const response = await axiosInstance.get("/auth/userInfo");
+        setUser(response.data);
+      } catch (error) {
+        console.error("Erro ao buscar informações do usuário:", error);
       }
+    } else {
+      history.push("/");
     }
+  };
 
+  useEffect(() => {
     fetchData();
-  }, []);
+  }, [history]);
 
   const signIn = async (data) => {
     try {
@@ -37,18 +38,33 @@ export function AuthProvider({ children }) {
         maxAge: 60 * 60 * 1,
       });
 
-      instance.defaults.headers["Authorization"] = `Bearer ${token}`;
+      axiosInstance.defaults.headers["Authorization"] = `Bearer ${token}`;
 
       setUser(user);
       history.push("/home");
     } catch (error) {
       console.error("Erro durante o login:", error);
-      setError("Erro durante o login. Por favor, verifique suas credenciais.");
+    }
+  };
+
+  const signOut = () => {
+    destroyCookie(undefined, "finder-token");
+    history.push("/");
+  };
+
+  const signUp = async (data) => {
+    try {
+      await axiosInstance.post("/auth/register", data);
+      history.push("/");
+    } catch (error) {
+      console.error("Erro durante o registro:", error);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, signIn }}>
+    <AuthContext.Provider
+      value={{ user, isAuthenticated, signIn, signOut, signUp, fetchData }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -2,24 +2,16 @@ import { Fragment, useEffect } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import Logo from "./assets/Logo.png";
-import instance from "./axiosConfig";
+import Perfil from "./assets/Perfil.png";
+import React, { useContext } from "react";
+import { AuthContext, useAuth } from "./AuthContext";
 
-const user = {
-  name: "Tom Cook",
-  email: "tom@example.com",
-  imageUrl: "https://github.com/WagnerRPaz.png",
-};
 const navigation = [
-  { name: "Dashboard", href: "#", current: true },
+  { name: "Home", href: "/home", current: true },
   { name: "Team", href: "#", current: false },
   { name: "Projects", href: "#", current: false },
   { name: "Calendar", href: "#", current: false },
   { name: "Reports", href: "#", current: false },
-];
-const userNavigation = [
-  { name: "Your Profile", href: "#" },
-  { name: "Settings", href: "#" },
-  { name: "Sign out", href: "#" },
 ];
 
 function classNames(...classes) {
@@ -27,9 +19,14 @@ function classNames(...classes) {
 }
 
 export default function Home() {
-  useEffect(() => {
-    //instance.get("/users");
-  }, []);
+  const { signOut } = useContext(AuthContext);
+  const { user, fetchData } = useAuth();
+
+  const handleSignOut = async () => {
+    signOut();
+  };
+
+  const userNavigation = [{ name: "Sair", href: "/", onClick: handleSignOut }];
   return (
     <>
       <div className="min-h-full">
@@ -68,15 +65,6 @@ export default function Home() {
                   </div>
                   <div className="hidden md:block">
                     <div className="ml-4 flex items-center md:ml-6">
-                      <button
-                        type="button"
-                        className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-                      >
-                        <span className="absolute -inset-1.5" />
-                        <span className="sr-only">View notifications</span>
-                        <BellIcon className="h-6 w-6" aria-hidden="true" />
-                      </button>
-
                       {/* Profile dropdown */}
                       <Menu as="div" className="relative ml-3">
                         <div>
@@ -85,9 +73,12 @@ export default function Home() {
                             <span className="sr-only">Open user menu</span>
                             <img
                               className="h-8 w-8 rounded-full"
-                              src={user.imageUrl}
+                              src={Perfil}
                               alt=""
                             />
+                            <div className="text-sm font-medium leading-none text-gray-400 ml-2">
+                              {user?.nome}
+                            </div>
                           </Menu.Button>
                         </div>
                         <Transition
@@ -105,6 +96,7 @@ export default function Home() {
                                 {({ active }) => (
                                   <a
                                     href={item.href}
+                                    onClick={item.onClick}
                                     className={classNames(
                                       active ? "bg-gray-100" : "",
                                       "block px-4 py-2 text-sm text-gray-700"
@@ -165,26 +157,18 @@ export default function Home() {
                     <div className="flex-shrink-0">
                       <img
                         className="h-10 w-10 rounded-full"
-                        src={user.imageUrl}
+                        src={Perfil}
                         alt=""
                       />
                     </div>
                     <div className="ml-3">
                       <div className="text-base font-medium leading-none text-white">
-                        {user.name}
+                        {user && user.nome}
                       </div>
                       <div className="text-sm font-medium leading-none text-gray-400">
-                        {user.email}
+                        {user && user.email}
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      className="relative ml-auto flex-shrink-0 rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-                    >
-                      <span className="absolute -inset-1.5" />
-                      <span className="sr-only">View notifications</span>
-                      <BellIcon className="h-6 w-6" aria-hidden="true" />
-                    </button>
                   </div>
                   <div className="mt-3 space-y-1 px-2">
                     {userNavigation.map((item) => (

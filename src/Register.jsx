@@ -1,19 +1,21 @@
-import React, { useState } from "react";
-import axios from "./axiosConfig";
+import React, { useState, useContext } from "react";
 import Logo from "./assets/Logo.png";
 import { useForm } from "react-hook-form";
 import { Link, useHistory } from "react-router-dom";
+import { AuthContext } from "./AuthContext";
 import "./index.css";
 
 function Register() {
   const { register, handleSubmit } = useForm();
   const [error, setError] = useState(null);
   const history = useHistory();
+  const { signUp } = useContext(AuthContext);
 
-  const handleRegister = async (data) => {
+  const handleRegister = async (formData) => {
     try {
-      await axios.post("/auth/register", data);
-      history.push("/");
+      signUp(formData);
+      formData.role = "USER";
+      setSuccessMessage("Cadastro realizado com sucesso!");
     } catch (error) {
       setError("Erro durante o registro. Por favor, tente novamente.");
     }
@@ -96,16 +98,16 @@ function Register() {
 
             <div>
               <label
-                htmlFor="phone"
+                htmlFor="telefone"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
                 Telefone
               </label>
               <div className="mt-2">
                 <input
-                  {...register("phone")}
-                  id="phone"
-                  name="phone"
+                  {...register("telefone")}
+                  id="telefone"
+                  name="telefone"
                   type="tel"
                   autoComplete="tel"
                   required
