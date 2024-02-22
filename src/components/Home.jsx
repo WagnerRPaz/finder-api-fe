@@ -1,10 +1,11 @@
-import { Fragment, useEffect } from "react";
+import React, { Fragment, useContext, useEffect, useState } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import Logo from "./assets/Logo.png";
-import Perfil from "./assets/Perfil.png";
-import React, { useContext } from "react";
-import { AuthContext, useAuth } from "./AuthContext";
+import Logo from "../assets/Logo.png";
+import Perfil from "../assets/Perfil.png";
+import { AuthContext, useAuth } from "../contexts/AuthContext";
+import HomeApi from "../services/api";
+import Pagination from "@mui/material/Pagination";
 
 const navigation = [
   { name: "Home", href: "/home", current: true },
@@ -14,6 +15,33 @@ const navigation = [
   { name: "Reports", href: "#", current: false },
 ];
 
+// Descrições das categorias
+const categoryDescriptions = {
+  Carpinteiro:
+    "Profissional responsável por construir e reparar estruturas e outros objetos compostos por madeira. Em sua atuação, eles cortam, lixam, montam e instalam móveis e outros materiais.",
+  Eletricista:
+    "Profissional responsável pela implementação, manutenção e reparação de instalações elétricas, tanto residenciais quanto industriais.",
+  Encanador:
+    "Profissional responsável por instalar e prover a manutenção de sistemas hidráulicos (água e esgoto) de residências, estabelecimentos e indústrias.",
+  Faxineiro:
+    "Profissional responsável por realizar a limpeza e a conservação de ambientes, sejam eles residenciais, comerciais, industriais ou públicos.",
+  Pedreiro:
+    "Profissional responsável pela execução de atividades de construção e manutenção de edifícios, casas, estruturas e obras em geral.",
+  Pintor:
+    "Profissional responsável por utilizar técnicas de pintura para aplicar tintas em superfícies, com o objetivo de criar efeitos estéticos e/ou proteger e preservar os materiais.",
+  Babá: "Profissional que cuida de bebês e crianças, zelando pelo bem-estar, saúde, alimentação, higiene pessoal, educação, cultura, recreação e lazer.",
+  Cozinheiro:
+    "Profissional responsável por preparar pratos, atentando para as especificações da comanda ou cardápio.",
+  Jardineiro:
+    "Profissional responsável pela implantação, criação e manutenção de jardins, poda de árvores, cuidado de flores de ambiente interno e externo e corte de grama.",
+  "Marido de aluguel":
+    "Profissional responsável por fazer pequenos consertos e reparos em residências.",
+  "Instalação de eletrônicos":
+    "Profissional responsável pela instalação, manutenção e reparo de dispositivos eletrônicos.",
+  Vidraceiro:
+    "Profissional responsável pela instalação, reparo e manutenção de produtos de vidro.",
+};
+
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
@@ -21,12 +49,37 @@ function classNames(...classes) {
 export default function Home() {
   const { signOut } = useContext(AuthContext);
   const { user, fetchData } = useAuth();
+  const [categories, setCategories] = useState([]);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setIsLoading(true);
+      try {
+        const response = await HomeApi.getAllCategories(page, 6);
+        setCategories(response.content);
+        setTotalPages(Math.ceil(response.totalElements / 6));
+      } catch (error) {
+        console.error("Erro ao buscar as categorias:", error);
+      }
+      setIsLoading(false);
+    };
+
+    fetchCategories();
+  }, [page]);
 
   const handleSignOut = async () => {
     signOut();
   };
 
   const userNavigation = [{ name: "Sair", href: "/", onClick: handleSignOut }];
+
+  const handlePageChange = (event, value) => {
+    setPage(value - 1);
+  };
+
   return (
     <>
       <div className="min-h-full">
@@ -65,7 +118,6 @@ export default function Home() {
                   </div>
                   <div className="hidden md:block">
                     <div className="ml-4 flex items-center md:ml-6">
-                      {/* Profile dropdown */}
                       <Menu as="div" className="relative ml-3">
                         <div>
                           <Menu.Button className="relative flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
@@ -113,7 +165,6 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="-mr-2 flex md:hidden">
-                    {/* Mobile menu button */}
                     <Disclosure.Button className="relative inline-flex items-center justify-center rounded-md bg-gray-800 p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                       <span className="absolute -inset-0.5" />
                       <span className="sr-only">Open main menu</span>
@@ -187,17 +238,51 @@ export default function Home() {
             </>
           )}
         </Disclosure>
-
-        <header className="bg-white shadow">
+        <header className="bg-white shadow text-center border-b-0">
           <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-            <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-              Dashboard
+            <h1 className="text-3xl font-bold text-green-600 mb-4 border-none">
+              Encontre aqui o melhor profissional para você
             </h1>
+            <p className="text-lg text-gray-500 mb-8 border-none">
+              Abaixo selecione a área de trabalho que deseja contratar
+            </p>
           </div>
         </header>
         <main>
           <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
-            {/* Your content */}
+            {isLoading ? (
+              <p className="text-center">Carregando...</p>
+            ) : (
+              <>
+                <ul className="grid grid-cols-2 gap-4">
+                  {categories
+                    .map((category) => (
+                      <li
+                        key={category.id}
+                        className="bg-white border rounded-lg p-4 shadow-sm"
+                      >
+                        <p className="text-lg font-semibold text-green-600 mb-2">
+                          {category.name}
+                        </p>
+                        <p className="text-gray-500">
+                          {categoryDescriptions[category.name] ||
+                            "Descrição não disponível"}
+                        </p>
+                      </li>
+                    ))
+                    .slice(page * 6, (page + 1) * 6)}
+                </ul>
+                <div className="flex justify-center mt-4">
+                  <Pagination
+                    count={totalPages}
+                    page={page + 1}
+                    onChange={handlePageChange}
+                    variant="outlined"
+                    shape="rounded"
+                  />
+                </div>
+              </>
+            )}
           </div>
         </main>
       </div>

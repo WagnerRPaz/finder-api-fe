@@ -1,6 +1,6 @@
 // AuthContext.jsx
 import React, { createContext, useEffect, useState, useContext } from "react";
-import axiosInstance from "./axiosConfig";
+import axiosInstance from "../services/axiosConfig";
 import { setCookie, parseCookies, destroyCookie } from "nookies";
 import { useHistory } from "react-router-dom";
 

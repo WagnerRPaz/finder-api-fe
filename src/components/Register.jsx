@@ -1,22 +1,23 @@
-import Logo from "./assets/Logo.png";
+import React, { useState, useContext } from "react";
+import Logo from "../assets/Logo.png";
 import { useForm } from "react-hook-form";
 import { Link, useHistory } from "react-router-dom";
-import { AuthContext } from "./AuthContext";
-import "./index.css";
-import React, { useContext } from "react";
+import { AuthContext } from "../contexts/AuthContext";
+import "../index.css";
 
-function Login() {
+function Register() {
   const { register, handleSubmit } = useForm();
-  const { signIn } = useContext(AuthContext);
-  const [error, setError] = React.useState(null);
+  const [error, setError] = useState(null);
   const history = useHistory();
+  const { signUp } = useContext(AuthContext);
 
-  const handleLogin = async (data) => {
+  const handleRegister = async (formData) => {
     try {
-      await signIn(data);
-      history.push("/home");
+      signUp(formData);
+      formData.role = "USER";
+      setSuccessMessage("Cadastro realizado com sucesso!");
     } catch (error) {
-      setError("Deu brete");
+      setError("Erro durante o registro. Por favor, tente novamente.");
     }
   };
 
@@ -32,8 +33,28 @@ function Login() {
             className="space-y-6"
             action="#"
             method="POST"
-            onSubmit={handleSubmit(handleLogin)}
+            onSubmit={handleSubmit(handleRegister)}
           >
+            <div>
+              <label
+                htmlFor="nome"
+                className="block text-sm font-medium leading-6 text-gray-900"
+              >
+                Nome
+              </label>
+              <div className="mt-2">
+                <input
+                  {...register("nome")}
+                  id="nome"
+                  name="nome"
+                  type="text"
+                  autoComplete="nome"
+                  required
+                  className="block w-full rounded-md border-0 py-1.5 pl-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                />
+              </div>
+            </div>
+
             <div>
               <label
                 htmlFor="email"
@@ -49,27 +70,46 @@ function Login() {
                   type="email"
                   autoComplete="email"
                   required
+                  style={{ paddingLeft: "10px" }}
                   className="block w-full rounded-md border-0 py-1.5 pl-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>
             </div>
 
             <div>
-              <div className="flex items-center justify-between">
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  Senha
-                </label>
-              </div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium leading-6 text-gray-900"
+              >
+                Senha
+              </label>
               <div className="mt-2">
                 <input
                   {...register("password")}
                   id="password"
                   name="password"
                   type="password"
-                  autoComplete="current-password"
+                  autoComplete="new-password"
+                  required
+                  className="block w-full rounded-md border-0 py-1.5 pl-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="telefone"
+                className="block text-sm font-medium leading-6 text-gray-900"
+              >
+                Telefone
+              </label>
+              <div className="mt-2">
+                <input
+                  {...register("telefone")}
+                  id="telefone"
+                  name="telefone"
+                  type="tel"
+                  autoComplete="tel"
                   required
                   className="block w-full rounded-md border-0 py-1.5 pl-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
@@ -81,18 +121,18 @@ function Login() {
                 type="submit"
                 className="flex w-full justify-center rounded-md bg-green-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
-                Sign in
+                Cadastrar
               </button>
             </div>
           </form>
 
           <p className="mt-10 text-center text-sm text-gray-500">
-            Não possui uma conta?{" "}
+            Já possui uma conta?{" "}
             <Link
-              to="/register"
+              to="/"
               className="font-semibold leading-6 text-green-600 hover:text-green-500"
             >
-              Cadastrar
+              Login
             </Link>
           </p>
         </div>
@@ -101,4 +141,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default Register;
