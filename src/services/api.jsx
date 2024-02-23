@@ -9,8 +9,20 @@ const getAllCategories = async () => {
   }
 };
 
+const getWorkersByCategory = async (categoryName, page, size) => {
+  try {
+    const response = await axiosInstance.get("workers/findWorker", {
+      params: { categoryName, page, size },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar os trabalhadores:", error);
+  }
+};
+
 const HomeApi = {
   getAllCategories,
+  getWorkersByCategory,
 };
 
 export default HomeApi;

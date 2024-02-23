@@ -1,3 +1,12 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.compact-subtitle {
+  margin-left: 160px;
+  margin-right: 160px;
+}
+
+.worker-card {
+  max-width: 26rem;
+}
