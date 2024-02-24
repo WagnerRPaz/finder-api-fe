@@ -20,9 +20,19 @@ const getWorkersByCategory = async (categoryName, page, size) => {
   }
 };
 
-const HomeApi = {
-  getAllCategories,
-  getWorkersByCategory,
+const workerRegister = async (data) => {
+  try {
+    await axiosInstance.post("/workers/newWorker", data);
+    history.push("/home");
+  } catch (error) {
+    console.error("Erro durante o registro:", error);
+  }
 };
 
-export default HomeApi;
+const WorkerApi = {
+  getAllCategories,
+  getWorkersByCategory,
+  workerRegister,
+};
+
+export default WorkerApi;

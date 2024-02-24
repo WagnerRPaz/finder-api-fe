@@ -1,17 +1,16 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Disclosure, Menu } from "@headlessui/react";
-import { MailIcon, CalendarIcon, PhoneIcon } from "@heroicons/react/solid";
+import React, { Fragment, useContext, useEffect, useState } from "react";
+import { useHistory } from "react-router-dom";
+import { Disclosure, Menu, Transition } from "@headlessui/react";
 import Logo from "../assets/Logo.png";
 import Perfil from "../assets/Perfil.png";
 import { AuthContext, useAuth } from "../contexts/AuthContext";
-import { useParams } from "react-router-dom";
 import WorkerApi from "../services/api";
 import Pagination from "@mui/material/Pagination";
 
 const navigation = [
   { name: "Home", href: "/home", current: false },
-  { name: "Categorias", href: "/categories", current: false },
-  { name: "Avalie", href: "#", current: false },
+  { name: "Categorias", href: "#", current: true },
+  { name: "Avalie", href: "/rating", current: false },
   { name: "Faça parte do nosso time", href: "/workerRegister", current: false },
 ];
 
@@ -19,32 +18,30 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-export default function WorkerList() {
+export default function Home() {
   const { signOut } = useContext(AuthContext);
   const { user } = useAuth();
-  const { categoryName } = useParams();
-  const [workers, setWorkers] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [categories, setCategories] = useState([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const [selectedWorker, setSelectedWorker] = useState(null);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const history = useHistory();
 
   useEffect(() => {
-    const fetchWorkersByCategory = async () => {
+    const fetchCategories = async () => {
       setIsLoading(true);
       try {
-        const response = await WorkerApi.getWorkersByCategory(categoryName);
-        setWorkers(response.content);
+        const response = await WorkerApi.getAllCategories(page, 6);
+        setCategories(response.content);
         setTotalPages(Math.ceil(response.totalElements / 6));
       } catch (error) {
-        console.error("Erro ao buscar os trabalhadores:", error);
+        console.error("Erro ao buscar as categorias:", error);
       }
       setIsLoading(false);
     };
 
-    fetchWorkersByCategory();
-  }, [categoryName]);
+    fetchCategories();
+  }, [page]);
 
   const handleSignOut = async () => {
     signOut();
@@ -56,20 +53,11 @@ export default function WorkerList() {
     setPage(value - 1);
   };
 
-  const openModal = (worker) => {
-    setSelectedWorker(worker);
-    setModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setModalOpen(false);
-  };
-
   return (
     <>
       <div className="min-h-full">
         <Disclosure as="nav" className="bg-gray-800">
-          {({ open }) => (
+          {({}) => (
             <>
               <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="flex h-16 items-center justify-between">
@@ -137,6 +125,7 @@ export default function WorkerList() {
                   </div>
                 </div>
               </div>
+
               <Disclosure.Panel className="md:hidden">
                 <div className="border-t border-gray-700 pb-3 pt-4">
                   <div className="flex items-center px-5">
@@ -163,14 +152,11 @@ export default function WorkerList() {
         </Disclosure>
         <header className="bg-white shadow text-center border-b-0">
           <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-            <h1 className="text-3xl font-bold text-green-600 mb-2">
-              Profissionais da categoria {categoryName}
+            <h1 className="text-3xl font-bold text-green-600 mb-4 border-none">
+              Encontre aqui o melhor profissional para você
             </h1>
-            <p className="text-lg text-gray-500 mb-8 max-w-7xl sm:px-6 lg:px-8 compact-subtitle">
-              Os profissionais presentes em nosso site são altamente
-              capacitados, escolhidos criteriosamente para integrarem nossas
-              listas. Priorizamos a excelência e expertise, assegurando que
-              apenas os melhores sejam apresentados aos nossos usuários.
+            <p className="text-lg text-gray-500 mb-8 border-none">
+              Abaixo selecione a área de trabalho que deseja contratar
             </p>
           </div>
         </header>
@@ -178,12 +164,11 @@ export default function WorkerList() {
           <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
             {isLoading ? (
               <p className="text-center">Carregando...</p>
-            ) : workers.length === 0 ? (
-              <div className="flex items-center justify-center h-full">
-                <div className="bg-white rounded-lg p-8 text-center">
+            ) : categories.length === 0 ? (
+              <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8 flex items-center justify-center h-full">
+                <div className="bg-white border rounded-lg p-8 shadow-sm text-center">
                   <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                    Nenhum trabalhador encontrado para a categoria{" "}
-                    {categoryName}
+                    Nenhum trabalhador encontrado para esta categoria
                   </h2>
                   <p className="text-gray-500">
                     Infelizmente, não há trabalhadores disponíveis para a
@@ -195,33 +180,26 @@ export default function WorkerList() {
             ) : (
               <>
                 <ul className="grid grid-cols-2 gap-4">
-                  {workers
-                    .map((worker) => (
+                  {categories
+                    .slice(page * 6, (page + 1) * 6)
+                    .map((category) => (
                       <li
-                        key={worker.worker_id}
-                        className="bg-white border rounded-lg p-4 shadow-sm cursor-pointer transition duration-300 hover:bg-gray-100 worker-card"
+                        key={category.id}
+                        className="bg-white border rounded-lg p-4 shadow-sm cursor-pointer transition duration-300 hover:bg-gray-100"
+                        onClick={() =>
+                          history.push(`/workers/${category.name}`)
+                        }
                       >
                         <div>
-                          <h1 className="text-lg font-semibold text-green-600 mb-2">
-                            {worker.full_name}
-                          </h1>
-                          <div className="flex items-center text-gray-500">
-                            <CalendarIcon className="h-5 w-5 mr-1" />
-                            <p>{worker.experience} anos de experiência</p>
-                          </div>
-                          <p className="text-gray-500 mt-10">
-                            {worker.summary}
+                          <h2 className="text-lg font-semibold text-green-600 mb-2">
+                            {category.name}
+                          </h2>
+                          <p className="text-gray-500">
+                            {category.description || "Descrição não disponível"}
                           </p>
-                          <button
-                            onClick={() => openModal(worker)}
-                            className="mt-10 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full"
-                          >
-                            Entre em contato
-                          </button>
                         </div>
                       </li>
-                    ))
-                    .slice(page * 6, (page + 1) * 6)}
+                    ))}
                 </ul>
                 <div className="flex justify-center mt-4">
                   <Pagination
@@ -237,64 +215,6 @@ export default function WorkerList() {
           </div>
         </main>
       </div>
-      {/* Modal */}
-      {modalOpen && (
-        <div className="fixed z-10 inset-0 overflow-y-auto">
-          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div
-              className="fixed inset-0 transition-opacity"
-              aria-hidden="true"
-            >
-              <div className="absolute inset-0 bg-gray-500 opacity-75" />
-            </div>
-            <span
-              className="hidden sm:inline-block sm:align-middle sm:h-screen"
-              aria-hidden="true"
-            >
-              &#8203;
-            </span>
-            <div
-              className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="modal-headline"
-            >
-              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <div className="sm:flex sm:items-start">
-                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-green-100 sm:mx-0 sm:h-10 sm:w-10"></div>
-                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                    <h3
-                      className="text-lg leading-6 font-medium text-gray-900"
-                      id="modal-headline"
-                    >
-                      Entre em contato com{" "}
-                      {selectedWorker && selectedWorker.full_name}
-                    </h3>
-                    <p className="text-gray-600 mt-2 mb-4"></p>
-                    <div className="flex items-center text-gray-600 mt-2 mb-4">
-                      <MailIcon className="h-5 w-5 mr-1" />
-                      <p>{selectedWorker && selectedWorker.email}</p>
-                    </div>
-                    <div className="flex items-center text-gray-600">
-                      <PhoneIcon className="h-5 w-5 mr-1" />
-                      <p>{selectedWorker && selectedWorker.phone}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button
-                  onClick={closeModal}
-                  type="button"
-                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm"
-                >
-                  Fechar
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }

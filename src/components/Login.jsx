@@ -14,7 +14,7 @@ function Login() {
   const handleLogin = async (data) => {
     try {
       await signIn(data);
-      history.push("/home");
+      history.push("/categories");
     } catch (error) {
       setError("Deu brete");
     }
@@ -24,7 +24,9 @@ function Login() {
     <>
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          <img className="mx-auto h-100 w-auto" src={Logo} alt="Your Company" />
+          <Link to="/home">
+            <img className="mx-auto h-100 w-auto" src={Logo} alt="Finder" />
+          </Link>
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">

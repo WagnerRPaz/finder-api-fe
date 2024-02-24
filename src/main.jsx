@@ -5,6 +5,9 @@ import Login from "./components/Login.jsx";
 import Home from "./components/Home.jsx";
 import WorkerList from "./components/WorkerList.jsx";
 import Register from "./components/Register.jsx";
+import Categories from "./components/Categories.jsx";
+import WorkerRegister from "./components/WorkerRegister.jsx";
+import Rating from "./components/Rating.jsx";
 import { AuthProvider } from "./contexts/AuthContext.jsx";
 
 const Root = () => {
@@ -14,9 +17,12 @@ const Root = () => {
         <AuthProvider>
           <div className="container-fluid mt-3">
             <Switch>
-              <Route exact path="/" component={Login} />
+              <Route exact path="/login" component={Login} />
               <Route path="/home" component={Home} />
+              <Route path="/categories" component={Categories} />
               <Route path="/register" component={Register} />
+              <Route path="/workerRegister" component={WorkerRegister} />
+              <Route path="/rating" component={Rating} />
               <Route path="/workers/:categoryName" component={WorkerList} />
             </Switch>
           </div>

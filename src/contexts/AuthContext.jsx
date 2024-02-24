@@ -1,4 +1,3 @@
-// AuthContext.jsx
 import React, { createContext, useEffect, useState, useContext } from "react";
 import axiosInstance from "../services/axiosConfig";
 import { setCookie, parseCookies, destroyCookie } from "nookies";
@@ -21,7 +20,7 @@ export function AuthProvider({ children }) {
         console.error("Erro ao buscar informações do usuário:", error);
       }
     } else {
-      history.push("/");
+      history.push("/login");
     }
   };
 
@@ -49,13 +48,13 @@ export function AuthProvider({ children }) {
 
   const signOut = () => {
     destroyCookie(undefined, "finder-token");
-    history.push("/");
+    history.push("/home");
   };
 
   const signUp = async (data) => {
     try {
       await axiosInstance.post("/auth/register", data);
-      history.push("/");
+      history.push("/login");
     } catch (error) {
       console.error("Erro durante o registro:", error);
     }

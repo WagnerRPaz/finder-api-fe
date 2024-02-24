@@ -25,7 +25,7 @@ function Register() {
     <>
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          <img className="mx-auto h-100 w-auto" src={Logo} alt="Your Company" />
+          <img className="mx-auto h-100 w-auto" src={Logo} alt="Finder" />
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
@@ -129,7 +129,7 @@ function Register() {
           <p className="mt-10 text-center text-sm text-gray-500">
             Já possui uma conta?{" "}
             <Link
-              to="/"
+              to="/login"
               className="font-semibold leading-6 text-green-600 hover:text-green-500"
             >
               Login
