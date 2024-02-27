@@ -3,13 +3,13 @@ import { useHistory } from "react-router-dom";
 import { Disclosure, Menu } from "@headlessui/react";
 import Logo from "../assets/Logo.png";
 import Perfil from "../assets/Perfil.png";
+import Thanks from "../assets/Thanks.png";
 import { AuthContext, useAuth } from "../contexts/AuthContext";
-import WorkerApi from "../services/api";
 
 const navigation = [
   { name: "Home", href: "/home", current: false },
   { name: "Categorias", href: "/categories", current: false },
-  { name: "Avalie", href: "/rating", current: true },
+  { name: "Avalie", href: "/rating", current: false },
   { name: "Faça parte do nosso time", href: "/workerRegister", current: false },
 ];
 
@@ -124,18 +124,33 @@ export default function Home() {
             </>
           )}
         </Disclosure>
-        <header className="bg-white shadow mt-10 text-center border-b-0">
-          <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-            <h1 className="text-3xl font-bold text-green-600 mb-4 border-none">
-              Quer avaliar um de nossos colaboradores?
-            </h1>
-            <p className="text-lg text-gray-500 mb-8 border-none">
-              Abaixo preencha todos os campos, fornecendo o máximo possível de
-              detalhes.
-            </p>
+        <main>
+          <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 flex items-center">
+            <div className="w-1/2 pr-4">
+              <h1 className="text-4xl font-bold text-green-600 mb-4 border-none">
+                Ficamos felizes em saber que você deseja fazer parte do nosso
+                projeto!
+              </h1>
+              <p className="text-lg text-gray-500 mb-8 border-none">
+                Nossa equipe irá analisar os dados que você preencheu, para que
+                assim seu perfil fique visível em nossas listas.
+              </p>
+              <button
+                onClick={() => history.push("/categories")}
+                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-500"
+              >
+                Voltar para as categorias
+              </button>
+            </div>
+            <div className="w-1/2 pl-4">
+              <img
+                className="object-cover object-center rounded-lg"
+                src={Thanks}
+                alt="Thanks"
+              />
+            </div>
           </div>
-        </header>
-        <main></main>
+        </main>
       </div>
     </>
   );

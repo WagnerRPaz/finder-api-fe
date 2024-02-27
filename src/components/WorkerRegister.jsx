@@ -1,11 +1,11 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
 import { useHistory } from "react-router-dom";
 import { Disclosure, Menu } from "@headlessui/react";
 import Logo from "../assets/Logo.png";
 import Perfil from "../assets/Perfil.png";
 import { AuthContext, useAuth } from "../contexts/AuthContext";
 import WorkerApi from "../services/api";
-import { data } from "autoprefixer";
 
 const navigation = [
   { name: "Home", href: "/home", current: false },
@@ -18,15 +18,73 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
+function formatCPF(cpf) {
+  cpf = cpf.replace(/\D/g, "");
+
+  cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
+  cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
+  cpf = cpf.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+
+  return cpf;
+}
+
+function formatPhone(phone) {
+  phone = phone.replace(/\D/g, "");
+  phone = phone.replace(/^(\d{2})(\d)/g, "($1) $2");
+
+  return phone;
+}
+
 export default function Home() {
+  const { register, handleSubmit, watch } = useForm();
   const { signOut } = useContext(AuthContext);
   const { user } = useAuth();
+  const [formattedCPF, setFormattedCPF] = useState("");
+  const [formattedPhone, setFormattedPhone] = useState("");
+  const [categories, setCategories] = useState([]);
+  const [summaryLength, setSummaryLength] = useState(0);
+  const history = useHistory();
 
   const handleSignOut = async () => {
     signOut();
   };
 
   const userNavigation = [{ name: "Sair", href: "/", onClick: handleSignOut }];
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await WorkerApi.getAllCategories();
+        setCategories(response.content);
+      } catch (error) {
+        console.error("Erro ao buscar as categorias:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  const HandleWorkerRegister = async (data) => {
+    try {
+      await WorkerApi.workerRegister(data);
+      history.push("/thanks");
+    } catch (error) {
+      console.error("Erro durante o registro:", error);
+    }
+  };
+
+  useEffect(() => {
+    const summary = watch("summary") || "";
+    setSummaryLength(summary.length);
+  }, [watch("summary")]);
+
+  const handleCPFChange = (e) => {
+    setFormattedCPF(formatCPF(e.target.value));
+  };
+
+  const handlePhoneChange = (e) => {
+    setFormattedPhone(formatPhone(e.target.value));
+  };
 
   return (
     <>
@@ -124,7 +182,7 @@ export default function Home() {
             </>
           )}
         </Disclosure>
-        <header className="bg-white shadow text-center border-b-0">
+        <header className="bg-white shadow mt-10 text-center border-b-0">
           <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <h1 className="text-3xl font-bold text-green-600 mb-4 border-none">
               Venha fazer parte você também!
@@ -134,7 +192,252 @@ export default function Home() {
             </p>
           </div>
         </header>
-        <main></main>
+        <main>
+          <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+            <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-4xl md:flex md:flex-row md:space-x-4">
+              <div className="md:w-1/3">
+                <form
+                  className="border rounded-lg p-4"
+                  action="#"
+                  method="POST"
+                  onSubmit={handleSubmit(HandleWorkerRegister)}
+                >
+                  <h2 className="text-xl font-bold text-green-600 mb-4">
+                    1. Informações Pessoais
+                  </h2>
+
+                  <div className="grid grid-cols-1 gap-y-4">
+                    <div>
+                      <label
+                        htmlFor="full_name"
+                        className="block text-sm font-medium leading-6 text-gray-900"
+                      >
+                        Nome Completo
+                      </label>
+                      <input
+                        {...register("full_name")}
+                        id="full_name"
+                        name="full_name"
+                        type="text"
+                        autoComplete="full_name"
+                        required
+                        className="block w-full rounded-md border-0 py-1.5 pl-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6"
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="cpf"
+                        className="block text-sm font-medium leading-6 text-gray-900"
+                      >
+                        CPF
+                      </label>
+                      <input
+                        {...register("cpf")}
+                        value={formattedCPF}
+                        onChange={handleCPFChange}
+                        id="cpf"
+                        name="cpf"
+                        type="text"
+                        autoComplete="cpf"
+                        required
+                        className="block w-full rounded-md border-0 py-1.5 pl-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6"
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="birth_date"
+                        className="block text-sm font-medium leading-6 text-gray-900"
+                      >
+                        Data de Nascimento
+                      </label>
+                      <input
+                        {...register("birth_date")}
+                        id="birth_date"
+                        name="birth_date"
+                        type="date"
+                        autoComplete="birth_date"
+                        required
+                        className="block w-full rounded-md border-0 py-1.5 pl-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6"
+                      />
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+              <div className="md:w-1/3">
+                <form
+                  className="border rounded-lg p-4"
+                  action="#"
+                  method="POST"
+                  onSubmit={handleSubmit(HandleWorkerRegister)}
+                >
+                  <h2 className="text-xl font-bold text-green-600 mb-4">
+                    2. Informações de Contato
+                  </h2>
+                  <div className="grid grid-cols-1 gap-y-4">
+                    <div>
+                      <label
+                        htmlFor="phone"
+                        className="block text-sm font-medium leading-6 text-gray-900"
+                      >
+                        Telefone
+                      </label>
+                      <input
+                        {...register("phone")}
+                        id="phone"
+                        name="phone"
+                        type="tel"
+                        value={formattedPhone}
+                        onChange={handlePhoneChange}
+                        autoComplete="phone"
+                        maxLength="14"
+                        required
+                        className="block w-full rounded-md border-0 py-1.5 pl-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="email"
+                        className="block text-sm font-medium leading-6 text-gray-900"
+                      >
+                        E-mail
+                      </label>
+                      <input
+                        {...register("email")}
+                        id="email"
+                        name="email"
+                        type="email"
+                        autoComplete="email"
+                        required
+                        className="block w-full rounded-md border-0 py-1.5 pl-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6"
+                      />
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+              <div className="md:w-1/3">
+                <form
+                  className="border rounded-lg p-4"
+                  action="#"
+                  method="POST"
+                  onSubmit={handleSubmit(HandleWorkerRegister)}
+                >
+                  <h2 className="text-xl font-bold text-green-600 mb-4">
+                    3. Detalhes Profissionais
+                  </h2>
+
+                  <div className="grid grid-cols-1 gap-y-4">
+                    <div>
+                      <label
+                        htmlFor="categoryName"
+                        className="block text-sm font-medium leading-6 text-gray-900"
+                      >
+                        Profissão
+                      </label>
+                      <select
+                        {...register("categoryName")}
+                        id="categoryName"
+                        name="categoryName"
+                        autoComplete="categoryName"
+                        required
+                        className="block w-full rounded-md border-0 py-1.5 pl-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6"
+                      >
+                        <option value="">Selecione uma profissão</option>
+                        {categories &&
+                          categories.map((category) => (
+                            <option key={category.id} value={category.name}>
+                              {category.name}
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="experience"
+                        className="block text-sm font-medium leading-6 text-gray-900"
+                      >
+                        Anos de Experiência
+                      </label>
+                      <input
+                        {...register("experience", {
+                          min: 0,
+                          pattern: {
+                            value: /^[0-9]*$/,
+                            message: "Somente números são permitidos",
+                          },
+                        })}
+                        id="experience"
+                        name="experience"
+                        type="number"
+                        autoComplete="experience"
+                        required
+                        className="block w-full rounded-md border-0 py-1.5 pl-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6"
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="city"
+                        className="block text-sm font-medium leading-6 text-gray-900"
+                      >
+                        Cidade e Estado de Atuação
+                      </label>
+                      <input
+                        {...register("city")}
+                        id="city"
+                        name="city"
+                        type="text"
+                        autoComplete="city"
+                        required
+                        className="block w-full rounded-md border-0 py-1.5 pl-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6"
+                      />
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-4xl md:w-2/3">
+              <form
+                className="border rounded-lg p-4"
+                action="#"
+                method="POST"
+                onSubmit={handleSubmit(HandleWorkerRegister)}
+              >
+                <h2 className="text-xl font-bold text-green-600 mb-4">
+                  4. Resumo Profissional
+                </h2>
+                <div className="relative mt-1">
+                  <textarea
+                    {...register("summary")}
+                    id="summary"
+                    name="summary"
+                    autoComplete="summary"
+                    required
+                    rows="6"
+                    maxLength="500"
+                    placeholder="Hora de vender teu peixe."
+                    className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6 resize-none"
+                  ></textarea>
+                  <p className="absolute bottom-1 right-1 text-sm text-gray-500">
+                    {summaryLength}/{500} caracteres
+                  </p>
+                </div>
+                <div className="mt-4">
+                  <button
+                    type="submit"
+                    className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50"
+                  >
+                    Cadastrar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </main>
       </div>
     </>
   );

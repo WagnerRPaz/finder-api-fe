@@ -1,6 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Disclosure, Menu } from "@headlessui/react";
-import { MailIcon, CalendarIcon, PhoneIcon } from "@heroicons/react/solid";
+import {
+  MailIcon,
+  CalendarIcon,
+  PhoneIcon,
+  LocationMarkerIcon,
+  SearchIcon,
+} from "@heroicons/react/solid";
 import Logo from "../assets/Logo.png";
 import Perfil from "../assets/Perfil.png";
 import { AuthContext, useAuth } from "../contexts/AuthContext";
@@ -11,7 +17,7 @@ import Pagination from "@mui/material/Pagination";
 const navigation = [
   { name: "Home", href: "/home", current: false },
   { name: "Categorias", href: "/categories", current: false },
-  { name: "Avalie", href: "#", current: false },
+  { name: "Avalie", href: "/rating", current: false },
   { name: "Faça parte do nosso time", href: "/workerRegister", current: false },
 ];
 
@@ -29,6 +35,8 @@ export default function WorkerList() {
   const [totalPages, setTotalPages] = useState(0);
   const [selectedWorker, setSelectedWorker] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredWorkers, setFilteredWorkers] = useState([]);
 
   useEffect(() => {
     const fetchWorkersByCategory = async () => {
@@ -36,6 +44,7 @@ export default function WorkerList() {
       try {
         const response = await WorkerApi.getWorkersByCategory(categoryName);
         setWorkers(response.content);
+        setFilteredWorkers(response.content);
         setTotalPages(Math.ceil(response.totalElements / 6));
       } catch (error) {
         console.error("Erro ao buscar os trabalhadores:", error);
@@ -63,6 +72,14 @@ export default function WorkerList() {
 
   const closeModal = () => {
     setModalOpen(false);
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+    const filtered = workers.filter((worker) =>
+      worker.full_name.toLowerCase().includes(event.target.value.toLowerCase())
+    );
+    setFilteredWorkers(filtered);
   };
 
   return (
@@ -161,7 +178,7 @@ export default function WorkerList() {
             </>
           )}
         </Disclosure>
-        <header className="bg-white shadow text-center border-b-0">
+        <header className="bg-white shadow  mt-10 text-center border-b-0">
           <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <h1 className="text-3xl font-bold text-green-600 mb-2">
               Profissionais da categoria {categoryName}
@@ -176,9 +193,24 @@ export default function WorkerList() {
         </header>
         <main>
           <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
+            <div className="relative max-w-lg mx-auto mb-6">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <SearchIcon
+                  className="h-5 w-5 text-gray-400"
+                  aria-hidden="true"
+                />
+              </div>
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                placeholder="Buscar profissionais..."
+              />
+            </div>
             {isLoading ? (
               <p className="text-center">Carregando...</p>
-            ) : workers.length === 0 ? (
+            ) : filteredWorkers.length === 0 ? (
               <div className="flex items-center justify-center h-full">
                 <div className="bg-white rounded-lg p-8 text-center">
                   <h2 className="text-xl font-semibold text-gray-800 mb-4">
@@ -194,30 +226,62 @@ export default function WorkerList() {
               </div>
             ) : (
               <>
-                <ul className="grid grid-cols-2 gap-4">
-                  {workers
+                <ul className="grid md:grid-cols-3 gap-4">
+                  {filteredWorkers
                     .map((worker) => (
                       <li
                         key={worker.worker_id}
-                        className="bg-white border rounded-lg p-4 shadow-sm cursor-pointer transition duration-300 hover:bg-gray-100 worker-card"
+                        className="bg-white border rounded-lg p-4 shadow-sm transition duration-300"
                       >
-                        <div>
-                          <h1 className="text-lg font-semibold text-green-600 mb-2">
-                            {worker.full_name}
-                          </h1>
-                          <div className="flex items-center text-gray-500">
-                            <CalendarIcon className="h-5 w-5 mr-1" />
-                            <p>{worker.experience} anos de experiência</p>
+                        <div className="flex flex-col h-full">
+                          <div>
+                            <h1 className="text-lg font-semibold text-green-600 mb-2">
+                              {worker.full_name}
+                            </h1>
+                            <div className="flex items-center text-gray-500">
+                              <LocationMarkerIcon className="h-5 w-5 mr-1" />
+                              <p>{worker.city} </p>
+                            </div>
+                            <div className="flex items-center text-gray-500">
+                              <LocationMarkerIcon className="h-5 w-5 mr-1" />
+                              <p>{worker.city} </p>
+                            </div>
+                            <div className="flex items-center text-gray-500">
+                              <CalendarIcon className="h-5 w-5 mr-1" />
+                              <p>{worker.experience} anos de experiência</p>
+                            </div>
+                            <div
+                              className="text-gray-500 mt-14 max-h-16 overflow-hidden"
+                              style={{
+                                display: "-webkit-box",
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: "vertical",
+                              }}
+                            >
+                              {worker.summary.length > 97 ? (
+                                <>
+                                  {worker.summary.substring(0, 97)}{" "}
+                                  <span
+                                    className="text-green-600 cursor-pointer"
+                                    onClick={() => openModal(worker)}
+                                  >
+                                    Ver mais...
+                                  </span>
+                                </>
+                              ) : (
+                                worker.summary
+                              )}
+                            </div>
                           </div>
-                          <p className="text-gray-500 mt-10">
-                            {worker.summary}
-                          </p>
-                          <button
-                            onClick={() => openModal(worker)}
-                            className="mt-10 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full"
-                          >
-                            Entre em contato
-                          </button>
+
+                          <div className="mt-auto">
+                            <button
+                              onClick={() => openModal(worker)}
+                              className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full mt-10"
+                            >
+                              Entre em contato
+                            </button>
+                          </div>
                         </div>
                       </li>
                     ))
@@ -261,7 +325,6 @@ export default function WorkerList() {
             >
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div className="sm:flex sm:items-start">
-                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-green-100 sm:mx-0 sm:h-10 sm:w-10"></div>
                   <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                     <h3
                       className="text-lg leading-6 font-medium text-gray-900"
@@ -270,14 +333,18 @@ export default function WorkerList() {
                       Entre em contato com{" "}
                       {selectedWorker && selectedWorker.full_name}
                     </h3>
-                    <p className="text-gray-600 mt-2 mb-4"></p>
-                    <div className="flex items-center text-gray-600 mt-2 mb-4">
+                    <div className="flex items-center text-gray-600 mb-4 mt-4">
                       <MailIcon className="h-5 w-5 mr-1" />
                       <p>{selectedWorker && selectedWorker.email}</p>
                     </div>
-                    <div className="flex items-center text-gray-600">
+                    <div className="flex items-center text-gray-600 mb-4">
                       <PhoneIcon className="h-5 w-5 mr-1" />
                       <p>{selectedWorker && selectedWorker.phone}</p>
+                    </div>
+                    <div className="text-gray-600 max-h-40 overflow-y-auto px-4 py-2 rounded-md border border-gray-300">
+                      <p className="whitespace-pre-line">
+                        {selectedWorker && selectedWorker.summary}
+                      </p>
                     </div>
                   </div>
                 </div>

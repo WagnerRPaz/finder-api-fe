@@ -49,14 +49,6 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center">
-                    <a
-                      href="/login"
-                      className="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
-                    >
-                      Entrar
-                    </a>
-                  </div>
                 </div>
               </div>
             </>

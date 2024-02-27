@@ -23,7 +23,6 @@ const getWorkersByCategory = async (categoryName, page, size) => {
 const workerRegister = async (data) => {
   try {
     await axiosInstance.post("/workers/newWorker", data);
-    history.push("/home");
   } catch (error) {
     console.error("Erro durante o registro:", error);
   }

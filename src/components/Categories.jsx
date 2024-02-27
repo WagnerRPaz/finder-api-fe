@@ -1,6 +1,7 @@
 import React, { Fragment, useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
+import { SearchIcon } from "@heroicons/react/outline"; // Importe o ícone de pesquisa
 import Logo from "../assets/Logo.png";
 import Perfil from "../assets/Perfil.png";
 import { AuthContext, useAuth } from "../contexts/AuthContext";
@@ -25,6 +26,7 @@ export default function Home() {
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(""); // Estado para armazenar o termo de pesquisa
   const history = useHistory();
 
   useEffect(() => {
@@ -52,6 +54,12 @@ export default function Home() {
   const handlePageChange = (event, value) => {
     setPage(value - 1);
   };
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+  const filteredCategories = categories.filter((category) =>
+    category.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <>
@@ -150,7 +158,7 @@ export default function Home() {
             </>
           )}
         </Disclosure>
-        <header className="bg-white shadow text-center border-b-0">
+        <header className="bg-white shadow mt-10 text-center border-b-0">
           <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <h1 className="text-3xl font-bold text-green-600 mb-4 border-none">
               Encontre aqui o melhor profissional para você
@@ -162,56 +170,74 @@ export default function Home() {
         </header>
         <main>
           <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
-            {isLoading ? (
-              <p className="text-center">Carregando...</p>
-            ) : categories.length === 0 ? (
-              <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8 flex items-center justify-center h-full">
-                <div className="bg-white border rounded-lg p-8 shadow-sm text-center">
-                  <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                    Nenhum trabalhador encontrado para esta categoria
-                  </h2>
-                  <p className="text-gray-500">
-                    Infelizmente, não há trabalhadores disponíveis para a
-                    categoria selecionada no momento. Por favor, tente novamente
-                    mais tarde ou escolha uma categoria diferente.
-                  </p>
-                </div>
+            <div className="relative max-w-lg mx-auto mb-6">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <SearchIcon
+                  className="h-5 w-5 text-gray-400"
+                  aria-hidden="true"
+                />
               </div>
-            ) : (
-              <>
-                <ul className="grid grid-cols-2 gap-4">
-                  {categories
-                    .slice(page * 6, (page + 1) * 6)
-                    .map((category) => (
-                      <li
-                        key={category.id}
-                        className="bg-white border rounded-lg p-4 shadow-sm cursor-pointer transition duration-300 hover:bg-gray-100"
-                        onClick={() =>
-                          history.push(`/workers/${category.name}`)
-                        }
-                      >
-                        <div>
-                          <h2 className="text-lg font-semibold text-green-600 mb-2">
-                            {category.name}
-                          </h2>
-                          <p className="text-gray-500">
-                            {category.description || "Descrição não disponível"}
-                          </p>
-                        </div>
-                      </li>
-                    ))}
-                </ul>
-                <div className="flex justify-center mt-4">
-                  <Pagination
-                    count={totalPages}
-                    page={page + 1}
-                    onChange={handlePageChange}
-                    variant="outlined"
-                    shape="rounded"
-                  />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                placeholder="Pesquisar categorias..."
+              />
+            </div>
+
+            <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
+              {isLoading ? (
+                <p className="text-center">Carregando...</p>
+              ) : filteredCategories.length === 0 ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="bg-white rounded-lg p-8 text-center">
+                    <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                      Nenhuma categoria encontrada
+                    </h2>
+                    <p className="text-gray-500">
+                      Infelizmente, não há categorias disponíveis
+                      correspondentes à sua pesquisa.
+                    </p>
+                  </div>
                 </div>
-              </>
-            )}
+              ) : (
+                <>
+                  <ul className="grid grid-cols-2 gap-4">
+                    {filteredCategories
+                      .slice(page * 6, (page + 1) * 6)
+                      .map((category) => (
+                        <li
+                          key={category.id}
+                          className="bg-white border rounded-lg p-4 shadow-sm cursor-pointer transition duration-300 hover:bg-gray-100"
+                          onClick={() =>
+                            history.push(`/workers/${category.name}`)
+                          }
+                        >
+                          <div>
+                            <h2 className="text-lg font-semibold text-green-600 mb-2">
+                              {category.name}
+                            </h2>
+                            <p className="text-gray-500">
+                              {category.description ||
+                                "Descrição não disponível"}
+                            </p>
+                          </div>
+                        </li>
+                      ))}
+                  </ul>
+                  <div className="flex justify-center mt-4">
+                    <Pagination
+                      count={totalPages}
+                      page={page + 1}
+                      onChange={handlePageChange}
+                      variant="outlined"
+                      shape="rounded"
+                    />
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </main>
       </div>
