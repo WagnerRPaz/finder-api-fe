@@ -43,6 +43,7 @@ export default function Home() {
   const [formattedPhone, setFormattedPhone] = useState("");
   const [categories, setCategories] = useState([]);
   const [summaryLength, setSummaryLength] = useState(0);
+  const [photoFile, setPhotoFile] = useState(null);
   const history = useHistory();
 
   const handleSignOut = async () => {
@@ -66,7 +67,19 @@ export default function Home() {
 
   const HandleWorkerRegister = async (data) => {
     try {
-      await WorkerApi.workerRegister(data);
+      const formData = new FormData();
+      formData.append("full_name", data.full_name);
+      formData.append("cpf", data.cpf);
+      formData.append("birth_date", data.birth_date);
+      formData.append("categoryName", data.categoryName);
+      formData.append("phone", data.phone);
+      formData.append("email", data.email);
+      formData.append("city", data.city);
+      formData.append("summary", data.summary);
+      formData.append("experience", data.experience);
+      formData.append("photoFile", photoFile); // Adicione a foto de perfil ao FormData
+
+      await WorkerApi.workerRegister(formData);
       history.push("/thanks");
     } catch (error) {
       console.error("Erro durante o registro:", error);
@@ -84,6 +97,10 @@ export default function Home() {
 
   const handlePhoneChange = (e) => {
     setFormattedPhone(formatPhone(e.target.value));
+  };
+
+  const handlePhotoChange = (e) => {
+    setPhotoFile(e.target.files[0]);
   };
 
   return (
@@ -312,6 +329,25 @@ export default function Home() {
                         autoComplete="email"
                         required
                         className="block w-full rounded-md border-0 py-1.5 pl-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6"
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="photoFile"
+                        className="block text-sm font-medium leading-6 text-gray-900"
+                      >
+                        Foto de Perfil
+                      </label>
+                      <input
+                        {...register("photoFile")}
+                        id="photoFile"
+                        name="photoFile"
+                        type="file"
+                        autoComplete="photoFile"
+                        accept="image/*"
+                        onChange={handlePhotoChange}
+                        className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                       />
                     </div>
                   </div>
