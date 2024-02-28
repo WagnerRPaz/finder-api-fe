@@ -43,6 +43,7 @@ export default function WorkerList() {
       setIsLoading(true);
       try {
         const response = await WorkerApi.getWorkersByCategory(categoryName);
+        console.log("Dados dos trabalhadores recuperados:", response.content);
         setWorkers(response.content);
         setFilteredWorkers(response.content);
         setTotalPages(Math.ceil(response.totalElements / 6));
@@ -226,62 +227,61 @@ export default function WorkerList() {
               </div>
             ) : (
               <>
-                <ul className="grid md:grid-cols-3 gap-4">
+                <ul className="worker-grid md:grid-cols-3 gap-4">
                   {filteredWorkers
                     .map((worker) => (
                       <li
                         key={worker.worker_id}
-                        className="bg-white border rounded-lg p-4 shadow-sm transition duration-300"
+                        className="worker-card bg-white border rounded-lg p-4 shadow-sm transition duration-300 flex flex-col justify-between"
                       >
-                        <div className="flex flex-col h-full">
-                          <div>
-                            <h1 className="text-lg font-semibold text-green-600 mb-2">
+                        <div className="flex justify-between md:flex-row md:grid-cols-2 mb-4">
+                          <div className="flex flex-col">
+                            <h1 className="text-2xl font-semibold text-green-600 mb-2">
                               {worker.full_name}
                             </h1>
-                            <div className="flex items-center text-gray-500">
+                            <div className="flex items-center text-gray-500 mt-2">
                               <LocationMarkerIcon className="h-5 w-5 mr-1" />
-                              <p>{worker.city} </p>
+                              <p>{worker.city}</p>
                             </div>
-                            <div className="flex items-center text-gray-500">
+                            <div className="flex items-center text-gray-500 mt-1">
                               <LocationMarkerIcon className="h-5 w-5 mr-1" />
-                              <p>{worker.city} </p>
+                              <p>{worker.city}</p>
                             </div>
-                            <div className="flex items-center text-gray-500">
+                            <div className="flex items-center text-gray-500 mt-1">
                               <CalendarIcon className="h-5 w-5 mr-1" />
                               <p>{worker.experience} anos de experiência</p>
                             </div>
-                            <div
-                              className="text-gray-500 mt-14 max-h-16 overflow-hidden"
-                              style={{
-                                display: "-webkit-box",
-                                WebkitLineClamp: 2,
-                                WebkitBoxOrient: "vertical",
-                              }}
-                            >
-                              {worker.summary.length > 97 ? (
-                                <>
-                                  {worker.summary.substring(0, 97)}{" "}
-                                  <span
-                                    className="text-green-600 cursor-pointer"
-                                    onClick={() => openModal(worker)}
-                                  >
-                                    Ver mais...
-                                  </span>
-                                </>
-                              ) : (
-                                worker.summary
-                              )}
-                            </div>
                           </div>
-
-                          <div className="mt-auto">
-                            <button
-                              onClick={() => openModal(worker)}
-                              className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full mt-10"
-                            >
-                              Entre em contato
-                            </button>
-                          </div>
+                          {worker.photoBase64 && (
+                            <img
+                              src={`data:image/${worker.photoMimeType};base64,${worker.photoBase64}`}
+                              alt="Worker Photo"
+                              className="flex h-12 w-12 md:h-20 md:w-20 lg:h-24 lg:w-24 rounded-full"
+                            />
+                          )}
+                        </div>
+                        <div className="text-gray-500 mb-4 max-h-16 overflow-hidden">
+                          {worker.summary.length > 80 ? (
+                            <>
+                              {worker.summary.substring(0, 80)}{" "}
+                              <span
+                                className="text-green-600 cursor-pointer"
+                                onClick={() => openModal(worker)}
+                              >
+                                Ver mais...
+                              </span>
+                            </>
+                          ) : (
+                            worker.summary
+                          )}
+                        </div>
+                        <div className="text-center">
+                          <button
+                            onClick={() => openModal(worker)}
+                            className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full"
+                          >
+                            Entre em contato
+                          </button>
                         </div>
                       </li>
                     ))
@@ -324,28 +324,39 @@ export default function WorkerList() {
               aria-labelledby="modal-headline"
             >
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <div className="sm:flex sm:items-start">
-                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                    <h3
-                      className="text-lg leading-6 font-medium text-gray-900"
-                      id="modal-headline"
-                    >
-                      Entre em contato com{" "}
-                      {selectedWorker && selectedWorker.full_name}
-                    </h3>
-                    <div className="flex items-center text-gray-600 mb-4 mt-4">
-                      <MailIcon className="h-5 w-5 mr-1" />
-                      <p>{selectedWorker && selectedWorker.email}</p>
+                <div className="sm:items-start">
+                  <div className="flex justify-between md:flex-row md:grid-cols-2 mb-4">
+                    <div className="mt-3 text-center sm:mt-0  sm:text-left">
+                      <h3
+                        className="text-lg leading-6 font-medium text-gray-900"
+                        id="modal-headline"
+                      >
+                        Entre em contato com{" "}
+                        {selectedWorker && selectedWorker.full_name}
+                      </h3>
+                      <div className="flex flex-col">
+                        <div className="flex items-center text-gray-600 mb-2 mt-4">
+                          <MailIcon className="h-5 w-5 mr-1" />
+                          <p>{selectedWorker && selectedWorker.email}</p>
+                        </div>
+                        <div className="flex items-center text-gray-600 mb-4">
+                          <PhoneIcon className="h-5 w-5 mr-1" />
+                          <p>{selectedWorker && selectedWorker.phone}</p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center text-gray-600 mb-4">
-                      <PhoneIcon className="h-5 w-5 mr-1" />
-                      <p>{selectedWorker && selectedWorker.phone}</p>
-                    </div>
-                    <div className="text-gray-600 max-h-40 overflow-y-auto px-4 py-2 rounded-md border border-gray-300">
-                      <p className="whitespace-pre-line">
-                        {selectedWorker && selectedWorker.summary}
-                      </p>
-                    </div>
+                    {selectedWorker && selectedWorker.photoBase64 && (
+                      <img
+                        src={`data:image/${selectedWorker.photoMimeType};base64,${selectedWorker.photoBase64}`}
+                        alt="Worker Photo"
+                        className="h-28 w-28 rounded-full"
+                      />
+                    )}
+                  </div>
+                  <div className="text-gray-600 max-h-40 overflow-y-auto px-4 py-2 rounded-md border border-gray-300">
+                    <p className="whitespace-pre-line">
+                      {selectedWorker && selectedWorker.summary}
+                    </p>
                   </div>
                 </div>
               </div>

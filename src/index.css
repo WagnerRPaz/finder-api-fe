@@ -8,5 +8,12 @@
 }
 
 .worker-card {
-  max-width: 26rem;
+  width: calc(100% / 3 - 1rem);
+  min-height: 350px;
+}
+
+.worker-grid {
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
 }

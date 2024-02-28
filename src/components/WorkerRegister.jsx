@@ -77,8 +77,7 @@ export default function Home() {
       formData.append("city", data.city);
       formData.append("summary", data.summary);
       formData.append("experience", data.experience);
-      formData.append("photoFile", photoFile); // Adicione a foto de perfil ao FormData
-
+      formData.append("photoFile", photoFile);
       await WorkerApi.workerRegister(formData);
       history.push("/thanks");
     } catch (error) {
