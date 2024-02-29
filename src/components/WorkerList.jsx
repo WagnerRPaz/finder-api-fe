@@ -6,6 +6,7 @@ import {
   PhoneIcon,
   LocationMarkerIcon,
   SearchIcon,
+  StarIcon,
 } from "@heroicons/react/solid";
 import Logo from "../assets/Logo.png";
 import Perfil from "../assets/Perfil.png";
@@ -43,7 +44,6 @@ export default function WorkerList() {
       setIsLoading(true);
       try {
         const response = await WorkerApi.getWorkersByCategory(categoryName);
-        console.log("Dados dos trabalhadores recuperados:", response.content);
         setWorkers(response.content);
         setFilteredWorkers(response.content);
         setTotalPages(Math.ceil(response.totalElements / 6));
@@ -240,8 +240,10 @@ export default function WorkerList() {
                               {worker.full_name}
                             </h1>
                             <div className="flex items-center text-gray-500 mt-2">
-                              <LocationMarkerIcon className="h-5 w-5 mr-1" />
-                              <p>{worker.city}</p>
+                              <StarIcon className="h-5 w-5 mr-1" />
+                              <p>
+                                {/*media de avaliações/ total de avaliações*/}
+                              </p>
                             </div>
                             <div className="flex items-center text-gray-500 mt-1">
                               <LocationMarkerIcon className="h-5 w-5 mr-1" />
