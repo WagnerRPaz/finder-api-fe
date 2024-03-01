@@ -10,7 +10,7 @@ import Pagination from "@mui/material/Pagination";
 
 const navigation = [
   { name: "Home", href: "/home", current: false },
-  { name: "Categorias", href: "#", current: true },
+  { name: "Categorias", href: "/categories", current: true },
   { name: "Avalie", href: "/rating", current: false },
   { name: "Faça parte do nosso time", href: "/workerRegister", current: false },
 ];
@@ -71,7 +71,7 @@ export default function Home() {
                 <div className="flex h-16 items-center justify-between">
                   <div className="flex items-center">
                     <div className="flex-shrink-0">
-                      <img className="h-21 w-21" src={Logo} alt="Finder" />
+                      <img className="h-44 w-44" src={Logo} alt="Finder" />
                     </div>
                     <div className="hidden md:block">
                       <div className="ml-10 flex items-baseline space-x-4">
@@ -106,7 +106,7 @@ export default function Home() {
                               alt=""
                             />
                             <div className="text-sm font-medium leading-none text-gray-400 ml-2">
-                              {user?.nome}
+                              {user?.name}
                             </div>
                           </Menu.Button>
                         </div>
@@ -146,7 +146,7 @@ export default function Home() {
                     </div>
                     <div className="ml-3">
                       <div className="text-base font-medium leading-none text-white">
-                        {user && user.nome}
+                        {user && user.name}
                       </div>
                       <div className="text-sm font-medium leading-none text-gray-400">
                         {user && user.email}

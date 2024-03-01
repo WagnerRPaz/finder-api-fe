@@ -41,6 +41,7 @@ export default function Home() {
   const { user } = useAuth();
   const [formattedCPF, setFormattedCPF] = useState("");
   const [formattedPhone, setFormattedPhone] = useState("");
+  const [selectedFileName, setSelectedFileName] = useState("");
   const [categories, setCategories] = useState([]);
   const [summaryLength, setSummaryLength] = useState(0);
   const [photoFile, setPhotoFile] = useState(null);
@@ -99,7 +100,9 @@ export default function Home() {
   };
 
   const handlePhotoChange = (e) => {
-    setPhotoFile(e.target.files[0]);
+    const file = e.target.files[0];
+    setPhotoFile(file);
+    setSelectedFileName(file ? file.name : "");
   };
 
   return (
@@ -112,7 +115,7 @@ export default function Home() {
                 <div className="flex h-16 items-center justify-between">
                   <div className="flex items-center">
                     <div className="flex-shrink-0">
-                      <img className="h-21 w-21" src={Logo} alt="Finder" />
+                      <img className="h-44 w-44" src={Logo} alt="Finder" />
                     </div>
                     <div className="hidden md:block">
                       <div className="ml-10 flex items-baseline space-x-4">
@@ -147,7 +150,7 @@ export default function Home() {
                               alt=""
                             />
                             <div className="text-sm font-medium leading-none text-gray-400 ml-2">
-                              {user?.nome}
+                              {user?.name}
                             </div>
                           </Menu.Button>
                         </div>
@@ -213,7 +216,7 @@ export default function Home() {
             <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-4xl md:flex md:flex-row md:space-x-4">
               <div className="md:w-1/3">
                 <form
-                  className="border rounded-lg p-4"
+                  className="border rounded-lg p-4 w-72 h-72"
                   action="#"
                   method="POST"
                   onSubmit={handleSubmit(HandleWorkerRegister)}
@@ -284,7 +287,7 @@ export default function Home() {
 
               <div className="md:w-1/3">
                 <form
-                  className="border rounded-lg p-4"
+                  className="border rounded-lg p-4 w-72 h-72"
                   action="#"
                   method="POST"
                   onSubmit={handleSubmit(HandleWorkerRegister)}
@@ -332,11 +335,24 @@ export default function Home() {
                     </div>
 
                     <div>
+                      <div className="flex items-center">
+                        <label
+                          htmlFor="photoFile"
+                          className="block text-sm font-medium leading-6 text-gray-900"
+                        >
+                          Foto de Perfil
+                          <span className="text-sm text-gray-500 ml-3">
+                            {selectedFileName && selectedFileName.length > 19
+                              ? selectedFileName.substring(0, 19) + "..."
+                              : selectedFileName}
+                          </span>
+                        </label>
+                      </div>
                       <label
                         htmlFor="photoFile"
-                        className="block text-sm font-medium leading-6 text-gray-900"
+                        className="block w-full rounded-md border-0 py-1.5 pl-2 text-white shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6 h-9 cursor-pointer ml-0 px-4 bg-green-600 hover:bg-green-700"
                       >
-                        Foto de Perfil
+                        Selecionar Imagem
                       </label>
                       <input
                         {...register("photoFile")}
@@ -346,7 +362,7 @@ export default function Home() {
                         autoComplete="photoFile"
                         accept="image/*"
                         onChange={handlePhotoChange}
-                        className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        className="sr-only"
                       />
                     </div>
                   </div>
@@ -355,7 +371,7 @@ export default function Home() {
 
               <div className="md:w-1/3">
                 <form
-                  className="border rounded-lg p-4"
+                  className="border rounded-lg p-4 w-72 h-72"
                   action="#"
                   method="POST"
                   onSubmit={handleSubmit(HandleWorkerRegister)}

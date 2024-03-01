@@ -27,7 +27,7 @@ export default function Home() {
                 <div className="flex h-16 items-center justify-between">
                   <div className="flex items-center">
                     <div className="flex-shrink-0">
-                      <img className="h-21 w-21" src={Logo} alt="Finder" />
+                      <img className="h-44 w-44" src={Logo} alt="Finder" />
                     </div>
                     <div className="hidden md:block">
                       <div className="ml-10 flex items-baseline space-x-4">

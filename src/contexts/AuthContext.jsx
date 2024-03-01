@@ -43,6 +43,7 @@ export function AuthProvider({ children }) {
       history.push("/home");
     } catch (error) {
       console.error("Erro durante o login:", error);
+      throw error;
     }
   };
 

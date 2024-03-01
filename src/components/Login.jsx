@@ -16,7 +16,7 @@ function Login() {
       await signIn(data);
       history.push("/categories");
     } catch (error) {
-      setError("Deu brete");
+      setError("Usuário ou senha incorretos");
     }
   };
 
@@ -25,11 +25,15 @@ function Login() {
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <Link to="/home">
-            <img className="mx-auto h-100 w-auto" src={Logo} alt="Finder" />
+            <img className="mx-auto h-60 w-auto" src={Logo} alt="Finder" />
           </Link>
         </div>
-
-        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+        <div className="mt-4 sm:mx-auto sm:w-full sm:max-w-sm">
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded-md mb-4">
+              {error}
+            </div>
+          )}
           <form
             className="space-y-6"
             action="#"
@@ -87,7 +91,6 @@ function Login() {
               </button>
             </div>
           </form>
-
           <p className="mt-10 text-center text-sm text-gray-500">
             Não possui uma conta?{" "}
             <Link
