@@ -1,7 +1,7 @@
-import React, { Fragment, useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
-import { Disclosure, Menu, Transition } from "@headlessui/react";
-import { SearchIcon } from "@heroicons/react/outline"; // Importe o ícone de pesquisa
+import { Disclosure, Menu } from "@headlessui/react";
+import { SearchIcon } from "@heroicons/react/outline";
 import Logo from "../assets/Logo.png";
 import Perfil from "../assets/Perfil.png";
 import { AuthContext, useAuth } from "../contexts/AuthContext";
@@ -19,7 +19,7 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-export default function Home() {
+export default function Categories() {
   const { signOut } = useContext(AuthContext);
   const { user } = useAuth();
   const [categories, setCategories] = useState([]);
@@ -65,7 +65,7 @@ export default function Home() {
     <>
       <div className="min-h-full">
         <Disclosure as="nav" className="bg-gray-800">
-          {({}) => (
+          {({ }) => (
             <>
               <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="flex h-16 items-center justify-between">

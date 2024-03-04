@@ -40,7 +40,6 @@ export function AuthProvider({ children }) {
       axiosInstance.defaults.headers["Authorization"] = `Bearer ${token}`;
 
       setUser(user);
-      history.push("/home");
     } catch (error) {
       console.error("Erro durante o login:", error);
       throw error;
@@ -49,13 +48,16 @@ export function AuthProvider({ children }) {
 
   const signOut = () => {
     destroyCookie(undefined, "finder-token");
-    history.push("/home");
+    setUser(null);
+    history.push("/login");
   };
 
   const signUp = async (data) => {
     try {
       await axiosInstance.post("/auth/register", data);
-      history.push("/login");
+      setTimeout(() => {
+        history.push("/login");
+      }, 500);
     } catch (error) {
       console.error("Erro durante o registro:", error);
     }

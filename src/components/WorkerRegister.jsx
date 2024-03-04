@@ -35,7 +35,7 @@ function formatPhone(phone) {
   return phone;
 }
 
-export default function Home() {
+export default function WorkerRegister() {
   const { register, handleSubmit, watch } = useForm();
   const { signOut } = useContext(AuthContext);
   const { user } = useAuth();
@@ -44,6 +44,7 @@ export default function Home() {
   const [selectedFileName, setSelectedFileName] = useState("");
   const [categories, setCategories] = useState([]);
   const [summaryLength, setSummaryLength] = useState(0);
+  const [formattedBirthDate, setFormattedBirthDate] = useState("");
   const [photoFile, setPhotoFile] = useState(null);
   const history = useHistory();
 
@@ -105,11 +106,24 @@ export default function Home() {
     setSelectedFileName(file ? file.name : "");
   };
 
+  const handleBirthDateChange = (e) => {
+    const inputDate = e.target.value.replace(/\D/g, '');
+    const day = inputDate.slice(0, 2);
+    const month = inputDate.slice(2, 4);
+    const year = inputDate.slice(4, 8);
+
+    let formattedDate = "";
+    if (inputDate.length <= 8) {
+      formattedDate = `${day}${day.length < 2 ? '' : '/'}${month}${month.length < 2 ? '' : '/'}${year}`;
+    }
+    setFormattedBirthDate(formattedDate);
+  };
+
   return (
     <>
       <div className="min-h-full">
         <Disclosure as="nav" className="bg-gray-800">
-          {({}) => (
+          {() => (
             <>
               <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="flex h-16 items-center justify-between">
@@ -191,9 +205,6 @@ export default function Home() {
                       <div className="text-base font-medium leading-none text-white">
                         {user && user.nome}
                       </div>
-                      <div className="text-sm font-medium leading-none text-gray-400">
-                        {user && user.email}
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -234,7 +245,7 @@ export default function Home() {
                         Nome Completo
                       </label>
                       <input
-                        {...register("full_name")}
+                        {...register("full_name", { required: true })}
                         id="full_name"
                         name="full_name"
                         type="text"
@@ -252,13 +263,14 @@ export default function Home() {
                         CPF
                       </label>
                       <input
-                        {...register("cpf")}
+                        {...register("cpf", { required: true })}
                         value={formattedCPF}
                         onChange={handleCPFChange}
                         id="cpf"
                         name="cpf"
                         type="text"
                         autoComplete="cpf"
+                        maxLength="14"
                         required
                         className="block w-full rounded-md border-0 py-1.5 pl-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6"
                       />
@@ -272,10 +284,12 @@ export default function Home() {
                         Data de Nascimento
                       </label>
                       <input
-                        {...register("birth_date")}
+                        {...register("birth_date", { required: true })}
                         id="birth_date"
                         name="birth_date"
-                        type="date"
+                        type="text"
+                        value={formattedBirthDate}
+                        onChange={handleBirthDateChange}
                         autoComplete="birth_date"
                         required
                         className="block w-full rounded-md border-0 py-1.5 pl-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6"
@@ -304,7 +318,7 @@ export default function Home() {
                         Telefone
                       </label>
                       <input
-                        {...register("phone")}
+                        {...register("phone", { required: true })}
                         id="phone"
                         name="phone"
                         type="tel"
@@ -324,7 +338,7 @@ export default function Home() {
                         E-mail
                       </label>
                       <input
-                        {...register("email")}
+                        {...register("email", { required: true })}
                         id="email"
                         name="email"
                         type="email"
@@ -355,7 +369,7 @@ export default function Home() {
                         Selecionar Imagem
                       </label>
                       <input
-                        {...register("photoFile")}
+                        {...register("photoFile", { required: true })}
                         id="photoFile"
                         name="photoFile"
                         type="file"
@@ -389,7 +403,7 @@ export default function Home() {
                         Profissão
                       </label>
                       <select
-                        {...register("categoryName")}
+                        {...register("categoryName", { required: true })}
                         id="categoryName"
                         name="categoryName"
                         autoComplete="categoryName"
@@ -413,17 +427,12 @@ export default function Home() {
                         Anos de Experiência
                       </label>
                       <input
-                        {...register("experience", {
-                          min: 0,
-                          pattern: {
-                            value: /^[0-9]*$/,
-                            message: "Somente números são permitidos",
-                          },
-                        })}
+                        {...register("experience", { required: true })}
                         id="experience"
                         name="experience"
                         type="number"
                         autoComplete="experience"
+                        min="0"
                         required
                         className="block w-full rounded-md border-0 py-1.5 pl-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6"
                       />
@@ -437,7 +446,7 @@ export default function Home() {
                         Cidade e Estado de Atuação
                       </label>
                       <input
-                        {...register("city")}
+                        {...register("city", { required: true })}
                         id="city"
                         name="city"
                         type="text"
@@ -473,7 +482,7 @@ export default function Home() {
                     placeholder="Hora de vender teu peixe."
                     className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6 resize-none"
                   ></textarea>
-                  <p className="absolute bottom-1 right-1 text-sm text-gray-500">
+                  <p className="absolute bottom-1 right-1 text-sm text-gray-500 mb-2 mr-2">
                     {summaryLength}/{500} caracteres
                   </p>
                 </div>

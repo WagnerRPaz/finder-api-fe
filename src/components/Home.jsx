@@ -13,15 +13,12 @@ const navigation = [
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
-
-const userNavigation = [{ name: "Sair", href: "/" }];
-
 export default function Home() {
   return (
     <>
       <div className="min-h-full">
         <Disclosure as="nav" className="bg-gray-800">
-          {({ open }) => (
+          {() => (
             <>
               <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="flex h-16 items-center justify-between">

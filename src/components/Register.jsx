@@ -3,20 +3,28 @@ import Logo from "../assets/Logo.png";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
+import toastr from 'toastr';
+import 'toastr/build/toastr.min.css';
 import "../index.css";
 
 function Register() {
   const { register, handleSubmit } = useForm();
-  const [error, setError] = useState(null);
   const { signUp } = useContext(AuthContext);
 
   const handleRegister = async (formData) => {
+    const { confirmPassword, ...rest } = formData;
+    const { password } = formData;
+
+    if (!password || password.trim() === '' || password.length < 8 || !/[a-zA-Z]/.test(password) || password !== confirmPassword) {
+      toastr.error('Erro: Verifique os campos e tente novamente.');
+      return;
+    }
+
     try {
-      signUp(formData);
-      formData.role = "USER";
-      setSuccessMessage("Cadastro realizado com sucesso!");
+      await signUp(rest);
+      toastr.success('Cadastro realizado com sucesso!');
     } catch (error) {
-      setError("Erro durante o registro. Por favor, tente novamente.");
+      toastr.error('Erro durante o registro. Por favor, tente novamente.');
     }
   };
 
@@ -85,9 +93,36 @@ function Register() {
               </label>
               <div className="mt-2">
                 <input
-                  {...register("password")}
+                  {...register("password", {
+                    required: true,
+                    minLength: 8,
+                    pattern: /^(?=.*\d).{8,}$/,
+                  })}
                   id="password"
                   name="password"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  className="block w-full rounded-md border-0 py-1.5 pl-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                />
+                <p className="text-sm text-gray-500 mt-1">
+                  A senha deve ter pelo menos 8 caracteres um número.
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium leading-6 text-gray-900"
+              >
+                Confirme a Senha
+              </label>
+              <div className="mt-2">
+                <input
+                  {...register("confirmPassword")}
+                  id="confirmPassword"
+                  name="confirmPassword"
                   type="password"
                   autoComplete="new-password"
                   required

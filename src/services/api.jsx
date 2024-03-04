@@ -28,10 +28,39 @@ const workerRegister = async (data) => {
   }
 };
 
+const getWorkerReviews = async (workerId) => {
+  try {
+    const response = await axiosInstance.get(`/reviews/stats/${workerId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Erro durante a exibição:", error);
+  }
+};
+
+const newRating = async (data) => {
+  try {
+    await axiosInstance.post("/reviews/newReview", data);
+  } catch (error) {
+    console.error("Erro durante o registro:", error);
+  }
+};
+
+const acceptWorker = async (workerId) => {
+  try {
+    await axiosInstance.post(`/workers/acceptWorker/${workerId}`);
+    console.log("Trabalhador aceito com sucesso!");
+  } catch (error) {
+    console.error("Erro ao aceitar trabalhador:", error);
+  }
+};
+
 const WorkerApi = {
   getAllCategories,
   getWorkersByCategory,
   workerRegister,
+  getWorkerReviews,
+  newRating,
+  acceptWorker,
 };
 
 export default WorkerApi;

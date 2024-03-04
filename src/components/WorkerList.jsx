@@ -1,13 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Disclosure, Menu } from "@headlessui/react";
-import {
-  MailIcon,
-  CalendarIcon,
-  PhoneIcon,
-  LocationMarkerIcon,
-  SearchIcon,
-  StarIcon,
-} from "@heroicons/react/solid";
+import { MailIcon, CalendarIcon, PhoneIcon, LocationMarkerIcon, SearchIcon, StarIcon, } from "@heroicons/react/solid";
 import Logo from "../assets/Logo.png";
 import Perfil from "../assets/Perfil.png";
 import { AuthContext, useAuth } from "../contexts/AuthContext";
@@ -38,14 +31,36 @@ export default function WorkerList() {
   const [modalOpen, setModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredWorkers, setFilteredWorkers] = useState([]);
+  const [workerId, setWorkerId] = useState("");
+  const [statusFilter, setStatusFilter] = useState("ACCEPTED");
 
   useEffect(() => {
     const fetchWorkersByCategory = async () => {
       setIsLoading(true);
       try {
         const response = await WorkerApi.getWorkersByCategory(categoryName);
-        setWorkers(response.content);
-        setFilteredWorkers(response.content);
+        let filteredWorkers = [];
+        if (statusFilter === "ACCEPTED") {
+          filteredWorkers = response.content.filter(
+            (worker) => worker.status === "ACCEPTED"
+          );
+        } else if (statusFilter === "PENDING") {
+          filteredWorkers = response.content.filter(
+            (worker) => worker.status === "PENDING"
+          );
+        } else {
+          filteredWorkers = response.content;
+        }
+        const workersWithReviews = await Promise.all(
+          filteredWorkers.map(async (worker) => {
+            const reviewsResponse = await WorkerApi.getWorkerReviews(
+              worker.worker_id
+            );
+            return { ...worker, reviews: reviewsResponse };
+          })
+        );
+        setWorkers(workersWithReviews);
+        setFilteredWorkers(workersWithReviews);
         setTotalPages(Math.ceil(response.totalElements / 6));
       } catch (error) {
         console.error("Erro ao buscar os trabalhadores:", error);
@@ -54,7 +69,7 @@ export default function WorkerList() {
     };
 
     fetchWorkersByCategory();
-  }, [categoryName]);
+  }, [categoryName, statusFilter]);
 
   const handleSignOut = async () => {
     signOut();
@@ -81,6 +96,22 @@ export default function WorkerList() {
       worker.full_name.toLowerCase().includes(event.target.value.toLowerCase())
     );
     setFilteredWorkers(filtered);
+  };
+
+  const isAdmin = () => {
+    return user && user.role === "ADMIN";
+  };
+
+  const handleAcceptWorker = async (workerId) => {
+    try {
+      await WorkerApi.acceptWorker(workerId);
+    } catch (error) {
+      console.error("Erro ao aceitar trabalhador:", error);
+    }
+  };
+
+  const handleWorkerIdChange = (e) => {
+    setWorkerId(e.target.value);
   };
 
   return (
@@ -169,9 +200,6 @@ export default function WorkerList() {
                       <div className="text-base font-medium leading-none text-white">
                         {user && user.nome}
                       </div>
-                      <div className="text-sm font-medium leading-none text-gray-400">
-                        {user && user.email}
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -194,7 +222,7 @@ export default function WorkerList() {
         </header>
         <main>
           <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
-            <div className="relative max-w-lg mx-auto mb-6">
+            <div className="relative max-w-full mx-auto mb-6 flex justify-between items-center mr-4">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <SearchIcon
                   className="h-5 w-5 text-gray-400"
@@ -205,10 +233,43 @@ export default function WorkerList() {
                 type="text"
                 value={searchTerm}
                 onChange={handleSearchChange}
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                className="block w-1/2 pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
                 placeholder="Buscar profissionais..."
               />
+              {isAdmin() && (
+                <>
+                  <input
+                    value={workerId}
+                    onChange={handleWorkerIdChange}
+                    placeholder="Digite o ID do trabalhador"
+                    className="block w-48 pl-2 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                  />
+                  <button
+                    onClick={() => handleAcceptWorker(workerId)}
+                    className="block w-36 pl-2 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                  >
+                    Aceitar Trabalhador
+                  </button>
+
+                  <label
+                    htmlFor="statusFilter"
+                    className="block w-32 pl-2 py-2 border border-gray-300 rounded-md bg-white placeholder-gray-500 sm:text-sm"
+                  >
+                    Filtrar por status:
+                  </label>
+                  <select
+                    id="statusFilter"
+                    className=" block rounded-md border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500"
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                  >
+                    <option value="ACCEPTED">Aceito</option>
+                    <option value="PENDING">Pendente</option>
+                  </select>
+                </>
+              )}
             </div>
+
             {isLoading ? (
               <p className="text-center">Carregando...</p>
             ) : filteredWorkers.length === 0 ? (
@@ -242,7 +303,8 @@ export default function WorkerList() {
                             <div className="flex items-center text-gray-500 mt-2">
                               <StarIcon className="h-5 w-5 mr-1" />
                               <p>
-                                {/*media de avaliações/ total de avaliações*/}
+                                {worker.reviews.averageRating.toFixed(1)} •{" "}
+                                {worker.reviews.totalReviews} avaliações
                               </p>
                             </div>
                             <div className="flex items-center text-gray-500 mt-1">

@@ -8,8 +8,6 @@ const instance = axios.create({
 });
 
 instance.interceptors.request.use((config) => {
-  console.log(config);
-
   return config;
 });
 
