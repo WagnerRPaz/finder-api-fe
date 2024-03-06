@@ -54,6 +54,15 @@ const acceptWorker = async (workerId) => {
   }
 };
 
+const deleteWorker = async (workerId) => {
+  try {
+    await axiosInstance.delete(`/workers/deleteWorker/${workerId}`);
+    console.log("Trabalhador deletado com sucesso!");
+  } catch (error) {
+    console.error("Erro ao deletar o trabalhador:", error);
+  }
+};
+
 const WorkerApi = {
   getAllCategories,
   getWorkersByCategory,
@@ -61,6 +70,7 @@ const WorkerApi = {
   getWorkerReviews,
   newRating,
   acceptWorker,
+  deleteWorker
 };
 
 export default WorkerApi;

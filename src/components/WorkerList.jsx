@@ -19,7 +19,7 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-export default function WorkerList() {
+export default function WorkerList({ workerStatus }) {
   const { signOut } = useContext(AuthContext);
   const { user } = useAuth();
   const { categoryName } = useParams();
@@ -105,8 +105,21 @@ export default function WorkerList() {
   const handleAcceptWorker = async (workerId) => {
     try {
       await WorkerApi.acceptWorker(workerId);
+      window.location.reload();
     } catch (error) {
       console.error("Erro ao aceitar trabalhador:", error);
+    }
+  };
+
+  const handleDeleteWorker = async (workerId) => {
+    try {
+      await WorkerApi.deleteWorker(workerId);
+      const updatedWorkers = workers.filter(worker => worker.worker_id !== workerId);
+      setWorkers(updatedWorkers);
+      setFilteredWorkers(updatedWorkers);
+      console.log("Trabalhador excluído com sucesso!");
+    } catch (error) {
+      console.error("Erro ao excluir trabalhador:", error);
     }
   };
 
@@ -223,52 +236,43 @@ export default function WorkerList() {
         <main>
           <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
             <div className="relative max-w-full mx-auto mb-6 flex justify-between items-center mr-4">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <SearchIcon
-                  className="h-5 w-5 text-gray-400"
-                  aria-hidden="true"
+              <div className="relative flex-1">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <SearchIcon
+                    className="h-5 w-5 text-gray-400"
+                    aria-hidden="true"
+                  />
+                </div>
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                  className="block w-1/2 pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                  placeholder="Buscar profissionais..."
                 />
               </div>
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={handleSearchChange}
-                className="block w-1/2 pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                placeholder="Buscar profissionais..."
-              />
               {isAdmin() && (
-                <>
-                  <input
-                    value={workerId}
-                    onChange={handleWorkerIdChange}
-                    placeholder="Digite o ID do trabalhador"
-                    className="block w-48 pl-2 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                  />
-                  <button
-                    onClick={() => handleAcceptWorker(workerId)}
-                    className="block w-36 pl-2 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                  >
-                    Aceitar Trabalhador
-                  </button>
-
+                <div className="flex items-center ml-2">
                   <label
                     htmlFor="statusFilter"
-                    className="block w-32 pl-2 py-2 border border-gray-300 rounded-md bg-white placeholder-gray-500 sm:text-sm"
+                    className="block w-32 pl-2 py-2 border border-gray-300 rounded-md bg-white placeholder-gray-500 sm:text-sm mr-2"
                   >
                     Filtrar por status:
                   </label>
                   <select
                     id="statusFilter"
-                    className=" block rounded-md border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500"
+                    className="block rounded-md border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500"
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
                   >
                     <option value="ACCEPTED">Aceito</option>
                     <option value="PENDING">Pendente</option>
                   </select>
-                </>
+                </div>
               )}
             </div>
+
+
 
             {isLoading ? (
               <p className="text-center">Carregando...</p>
@@ -347,6 +351,25 @@ export default function WorkerList() {
                             Entre em contato
                           </button>
                         </div>
+                        {isAdmin() && (
+                          <div className="text-center">
+                            {worker.status === "PENDING" && (
+                              <button
+                                onClick={() => handleAcceptWorker(worker.worker_id)}
+                                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded w-full mt-2"
+                              >
+                                Aceitar Trabalhador Pendente
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleDeleteWorker(worker.worker_id)}
+                              className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-full mt-2"
+                            >
+                              Excluir Trabalhador
+                            </button>
+                          </div>
+                        )}
+
                       </li>
                     ))
                     .slice(page * 6, (page + 1) * 6)}

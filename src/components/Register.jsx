@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useContext } from "react";
 import Logo from "../assets/Logo.png";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";

@@ -49,7 +49,7 @@ export function AuthProvider({ children }) {
   const signOut = () => {
     destroyCookie(undefined, "finder-token");
     setUser(null);
-    history.push("/login");
+    history.push("/home");
   };
 
   const signUp = async (data) => {

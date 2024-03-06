@@ -478,12 +478,12 @@ export default function WorkerRegister() {
                     autoComplete="summary"
                     required
                     rows="6"
-                    maxLength="500"
+                    maxLength="1000"
                     placeholder="Hora de vender teu peixe."
                     className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6 resize-none"
                   ></textarea>
                   <p className="absolute bottom-1 right-1 text-sm text-gray-500 mb-2 mr-2">
-                    {summaryLength}/{500} caracteres
+                    {summaryLength}/{1000} caracteres
                   </p>
                 </div>
                 <div className="mt-4">
