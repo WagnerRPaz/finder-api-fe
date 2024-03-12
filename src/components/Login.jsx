@@ -15,6 +15,7 @@ function Login() {
     try {
       await signIn(data);
       history.push("/categories");
+      window.location.reload();
     } catch (error) {
       setError("Usuário ou senha incorretos");
     }

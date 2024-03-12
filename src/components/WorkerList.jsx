@@ -31,7 +31,6 @@ export default function WorkerList({ workerStatus }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredWorkers, setFilteredWorkers] = useState([]);
-  const [workerId, setWorkerId] = useState("");
   const [statusFilter, setStatusFilter] = useState("ACCEPTED");
 
   useEffect(() => {
@@ -121,10 +120,6 @@ export default function WorkerList({ workerStatus }) {
     } catch (error) {
       console.error("Erro ao excluir trabalhador:", error);
     }
-  };
-
-  const handleWorkerIdChange = (e) => {
-    setWorkerId(e.target.value);
   };
 
   return (
